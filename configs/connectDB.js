@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const { log } = require('node:console');
 require('dotenv').config();
 const mongoDbSet = process.env.MONGODB_URI;
+console.log(mongoDbSet);
 
 
 const connectDB = async () => {
