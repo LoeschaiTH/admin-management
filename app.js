@@ -3,7 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const fs = require('fs');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // ตั้งค่าโฟลเดอร์ routes
 const routesDir = path.join(__dirname, 'routes');
