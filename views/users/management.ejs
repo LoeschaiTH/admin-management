@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+</head>
+<body>
+  <%- include('../partials/bootstrap') %>
+  <div class="container mt-5 mb-5">
+    <!-- Message -->
+    <h1 class="text-center"><%= message %></h1>
+
+    <!-- Add User Form -->
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <form  id="addUserForm" onsubmit="event.preventDefault(); addUser();" class="bg-light p-4 rounded shadow-sm">
+          <h3 class="mb-4">Add New User</h3>
+          <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="age" class="form-label">Age:</label>
+            <input type="number" id="age" name="age" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add User</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Users List -->
+    <div class="mt-5">
+      <h3 class="mb-4 <%= users.length > 0 ? '' : 'text-muted' %>">
+        <%= users.length > 0 ? 'Users List' : '' %>
+      </h3>
+      <ul class="list-group">
+        <% users.forEach(function(user) { %>
+          <li id="user-<%= user.id %>" class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong><%= user.name %></strong><br>
+              Age: <%= user.age %><br>
+              Email: <%= user.email %>
+            </div>
+            <div class="btn-group d-flex gap-2">
+              <form style="display:inline;" onsubmit="event.preventDefault(); deleteUser('<%= user.id %>');">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+              <form action="/management/edit/<%= user._id %>" method="GET" style="display:inline;">
+                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+              </form>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    async function deleteUser(userId) {
+      try {
+        const response = await fetch(`/delete/${userId}`, {
+          method: 'POST',
+        });
+    
+        const result = await response.json();
+        if (result.success) {
+          alert(result.message);
+          // ลบผู้ใช้จาก DOM โดยไม่ต้องรีเฟรชหน้า
+          document.getElementById(`user-${userId}`).remove();
+        } else {
+          alert(result.message);
+        }
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        alert('An error occurred. Please try again later.');
+      }
+    }
+
+    async function addUser() {
+      const name = document.getElementById("name").value.trim();
+      const age = document.getElementById("age").value.trim();
+      const email = document.getElementById("email").value.trim();
+    
+      // ตรวจสอบว่าไม่มีค่าฟิลด์ที่ขาดหาย
+      if (!name || !age || !email) {
+        alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+        return;
+      }
+    
+      const data = {
+        name: name,
+        age: age,
+        email: email
+      };
+    
+      try {
+        const response = await fetch('/add-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+    
+        const result = await response.json();
+    
+        if (result.success) {
+          alert("เพิ่มผู้ใช้สำเร็จ!");
+          document.getElementById("addUserForm").reset(); // รีเซ็ตฟอร์ม
+    
+          // เพิ่มผู้ใช้ใหม่เข้าใน DOM
+          const userList = document.querySelector("ul.list-group");
+    
+          const li = document.createElement("li");
+          li.id = `user-${result.user._id}`;
+          li.className = "list-group-item d-flex justify-content-between align-items-center";
+          li.innerHTML = `
+            <div>
+              <strong>${result.user.name}</strong><br>
+              Age: ${result.user.age}<br>
+              Email: ${result.user.email}
+            </div>
+            <div class="btn-group d-flex gap-2">
+              <form style="display:inline;" onsubmit="event.preventDefault(); deleteUser('${result.user._id}');">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+              <form action="/management/edit/${result.user._id}" method="GET" style="display:inline;">
+                <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+              </form>
+            </div>
+          `;
+    
+          userList.appendChild(li);
+        } else {
+          alert(result.message || "เกิดข้อผิดพลาดในการเพิ่มผู้ใช้");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("เกิดข้อผิดพลาดระหว่างการส่งข้อมูล");
+      }
+    }
+    
+  </script>
+  
+
+
+</html>

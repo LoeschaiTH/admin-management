@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Arial', sans-serif;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #343a40;
+    }
+
+    p.text-muted {
+      font-size: 1.1rem;
+    }
+
+    .list-group-item {
+      background: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .list-group-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .list-group-item strong {
+      font-size: 1.2rem;
+      color: #007bff;
+    }
+
+    .list-group-item p {
+      margin: 0.5rem 0 0;
+    }
+
+    footer {
+      margin-top: 2rem;
+      background-color: #343a40;
+      color: #ffffff;
+      padding: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    footer p {
+      margin: 0;
+    }
+
+    /* Animation Fade-in */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/bootstrap') %>
+  <!-- Header -->
+  <div class="container mt-5 fade-in">
+    <div class="text-center mb-4">
+      <h1>Admin Dashboard</h1>
+      <p class="text-muted">Welcome to the admin panel. Please choose an option below.</p>
+    </div>
+
+    <!-- Menu Options -->
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="list-group">
+          <a href="/management" class="list-group-item list-group-item-action">
+            <strong>Manage Users</strong>
+            <p class="mb-0 text-muted">Add, edit, or delete user accounts.</p>
+          </a>
+          <a href="/products" class="list-group-item list-group-item-action">
+            <strong>Manage Products</strong>
+            <p class="mb-0 text-muted">View and update the product catalog.</p>
+          </a>
+          <a href="/reports" class="list-group-item list-group-item-action">
+            <strong>Reports</strong>
+            <p class="mb-0 text-muted">Generate sales and performance reports.</p>
+          </a>
+          <a href="/settings" class="list-group-item list-group-item-action">
+            <strong>Settings</strong>
+            <p class="mb-0 text-muted">Configure system settings and preferences.</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <p>© 2024 Admin Panel. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
