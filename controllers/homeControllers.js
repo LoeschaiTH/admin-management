@@ -1,4 +1,3 @@
-require('dotenv').config();
 exports.getHomePage = async (req, res) => {
     try {
       res.render('home/index', { title: 'Home Page' });
