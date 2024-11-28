@@ -175,12 +175,19 @@
       const productId = product.id;
       const filePath = product.pathStorage;
     
-      if (filePath) {
-        await deleteImage(filePath);  // Delete image if path exists
-      }
+ 
     
       try {
-        const response = await fetch(`/delete-product/${productId}`, { method: "POST" });
+        const response = await fetch(`/delete-product/${productId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: productId,
+            filePath: filePath,  
+          }),
+        });
         const result = await response.json();
         if (result.success) {
           alert("Product deleted successfully!");
@@ -230,7 +237,6 @@
         alert("Please select an image file.");
         return null;
       }
-
       const storageRef = ref(storage, `product-images/${file.name}`);
       const pathStorage = `product-images/${file.name}`;
       const fileName = file.name;

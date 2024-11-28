@@ -1,6 +1,6 @@
 const product = require('../models/products');
 const { formatNumber } = require('../utils/formatNumber');
-
+const  bucket  = require('../service/firebaseAdmin');
 exports.getProducts = async (req, res) => {
   try {
     const products = await product.find({});
@@ -39,7 +39,16 @@ exports.getProducts = async (req, res) => {
   }
 
   exports.deleteProduct = async (req, res) => {
+    const { productId, filePath } = req.body;
+  
     try {
+      // ลบไฟล์จาก Firebase Storage
+      const fileDeleted = await deleteFile(filePath);
+      if (!fileDeleted) {
+        return res.json({ success: false, message: 'Failed to delete file' });  // หยุดหากลบไฟล์ไม่ได้
+      }
+  
+      // ลบข้อมูลในฐานข้อมูล
       const { id } = req.params;
       await product.findByIdAndDelete(id);
       res.json({ success: true });
@@ -47,5 +56,19 @@ exports.getProducts = async (req, res) => {
       console.error(error);
       res.json({ success: false, message: 'Failed to delete product' });
     }
+  };
+  
+  async function deleteFile(filePath) {
+    console.log("Deleting file:", filePath);
+    try {
+      const file = bucket.file(filePath);  // สร้าง reference ไปที่ไฟล์
+      const [status] = await file.delete();  // ลบไฟล์
+      console.log(`Deleted file: ${filePath} - ${status}`);
+      return true;  // ถ้าลบไฟล์สำเร็จให้ return true
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      return false;  // ถ้าเกิดข้อผิดพลาดให้ return false
+    }
   }
+  
   
