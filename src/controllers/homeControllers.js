@@ -1,4 +1,5 @@
 exports.getHomePage = async (req, res) => {
+  console.log("seeeee");
     try {
       res.render('home/index', { title: 'Home Page' });
     } catch (err) {
