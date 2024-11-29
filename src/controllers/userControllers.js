@@ -1,5 +1,4 @@
 // controllers/userController.js
-const { log } = require('console');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 
@@ -15,6 +14,7 @@ exports.getAllUsers = async (req, res) => {
 
 // ฟังก์ชันเพิ่มผู้ใช้
 exports.addUser = async (req, res) => {
+
   try {
     const { name, age, email } = req.body;
 
@@ -85,3 +85,4 @@ exports.updateUser = async (req, res) => {
     res.status(500).send("Error: " + err);
   }
 };
+

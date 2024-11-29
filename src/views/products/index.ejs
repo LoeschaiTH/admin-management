@@ -156,26 +156,13 @@
 
 
   
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
   <script  type="module">
-    import { storage, ref, getDownloadURL, uploadBytes, deleteObject } from '../plugins/firebase.js';  
 
-
-    async function deleteImage(filePath) {
-      const storageRef = ref(storage, filePath);  // Create a reference to the file in Firebase Storage
-      try {
-        await deleteObject(storageRef);  // Delete the file
-        console.log("Image deleted successfully");
-      } catch (error) {
-        console.error("Error deleting image:", error);
-      }
-    }
-    
     async function deleteProduct(product) {
       const productId = product.id;
       const filePath = product.pathStorage;
-    
- 
     
       try {
         const response = await fetch(`/delete-product/${productId}`, {
@@ -232,74 +219,42 @@
     });
     
 
-    async function uploadImage(file) {
-      if (!file) {
-        alert("Please select an image file.");
-        return null;
-      }
-      const storageRef = ref(storage, `product-images/${file.name}`);
-      const pathStorage = `product-images/${file.name}`;
-      const fileName = file.name;
-      try {
-        const snapshot = await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        return { pathStorage, downloadURL, fileName };
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("An error occurred during image upload.");
-        return null;
-      }
-    }
 
    
 
 
     async function addProduct(event) {
       event.preventDefault();
-
+    
       const productName = document.getElementById("name").value.trim();
       const price = parseFloat(document.getElementById("price").value.trim());
       const category = document.getElementById("category").value.trim();
       const description = document.getElementById("description").value.trim();
       const stock = parseInt(document.getElementById("stock").value.trim(), 10);
       const imageFile = document.getElementById("imageFile").files[0];
-
+    
       if (!productName || isNaN(price) || !category || isNaN(stock)) {
         alert("Please fill out all required fields.");
         return;
       }
-
-      const imgDetail = await uploadImage(imageFile);
-      const imageURL = imgDetail.downloadURL;
-      const fileName = imgDetail.fileName;
-      const pathStorage = imgDetail.pathStorage;
-      if (!imageURL) return;
-
-      const productData = {
-        productName,
-        price,
-        category,
-        description,
-        stock,
-        imageURL,
-        fileName,
-        pathStorage
-      };
-
+    
+      const formData = new FormData();
+      formData.append("productName", productName);
+      formData.append("price", price);
+      formData.append("category", category);
+      formData.append("description", description);
+      formData.append("stock", stock);
+      formData.append("imageFile", imageFile); // แนบไฟล์
+    
       try {
-        const response = await fetch("/add-product", {
-          method: "POST",
+        const response = await axios.post("/upload-information", formData, {
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "multipart/form-data",
           },
-          body: JSON.stringify(productData)
         });
-
-        const result = await response.json();
+        const result = response.data;
         if (result.success) {
           alert("Product added successfully!");
-          document.getElementById("addProductForm").reset();
-          updateProductList(result.product);
           window.location.reload();
         } else {
           alert(result.message || "Failed to add product.");
@@ -309,6 +264,7 @@
         alert("An error occurred while adding the product.");
       }
     }
+    
 
     // ฟังก์ชันอัพเดตรายการสินค้าใน DOM
     function updateProductList(product) {

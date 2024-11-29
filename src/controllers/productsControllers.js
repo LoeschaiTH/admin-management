@@ -1,6 +1,12 @@
 const product = require('../models/products');
 const { formatNumber } = require('../utils/formatNumber');
 const  bucket  = require('../service/firebaseAdmin');
+const multer = require('multer');
+const admin = require('firebase-admin');
+const storage = admin.storage();
+const bucketUpload = storage.bucket();
+const upload = multer({ storage: multer.memoryStorage() });
+
 exports.getProducts = async (req, res) => {
   try {
     const products = await product.find({});
@@ -37,6 +43,45 @@ exports.getProducts = async (req, res) => {
       });
     }
   }
+  exports.uploadFile = [upload.single('imageFile'), async (req, res) => {
+    const { productName, price, category, description, stock} = req.body;
+    console.log("see lo2",req.file);
+    console.log("see",req.body);
+
+    
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
+      }
+  
+      const { originalname, buffer } = file;
+      const fileName = originalname.replace(/ /g, "_");
+      const filePath = `product-images/${fileName}`;  
+  
+      const newFile = bucket.file(filePath); 
+  
+      await newFile.save(buffer, {
+        metadata: { contentType: file.mimetype },
+      });
+  
+      await newFile.makePublic();
+
+      const pathStorage = filePath;
+  
+      const imageURL = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+      const newProduct = new product({ productName, price, category, description, stock, imageURL ,fileName, pathStorage});
+  
+      const savedProduct = await newProduct.save();
+  
+  
+      res.json({ success: true, savedProduct });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: error });
+    }
+  }];
+
 
   exports.deleteProduct = async (req, res) => {
     const { productId, filePath } = req.body;
@@ -59,11 +104,10 @@ exports.getProducts = async (req, res) => {
   };
   
   async function deleteFile(filePath) {
-    console.log("Deleting file:", filePath);
     try {
       const file = bucket.file(filePath);  // สร้าง reference ไปที่ไฟล์
       const [status] = await file.delete();  // ลบไฟล์
-      console.log(`Deleted file: ${filePath} - ${status}`);
+      console.log(`Deleted file: ${filePath}`);
       return true;  // ถ้าลบไฟล์สำเร็จให้ return true
     } catch (error) {
       console.error("Error deleting file:", error);
