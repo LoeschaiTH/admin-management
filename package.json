@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node sever.js"
+    "start": "node sever.js",
+    "run": "nodemon sever.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "compression": "^1.7.5",
     "connect-flash": "^0.1.1",
     "connect-livereload": "^0.6.1",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.21.1",
